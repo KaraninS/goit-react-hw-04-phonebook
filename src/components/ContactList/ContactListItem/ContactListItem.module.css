@@ -1,0 +1,23 @@
+.text {
+  font-size: 20px;
+}
+
+.span {
+  font-weight: 500;
+}
+
+.delBtn {
+  background-image: linear-gradient(#323ff1, #1f2df8);
+  color: #fff;
+  margin-left: 10px;
+  border-radius: 6px;
+  border: 1px rgb(139, 139, 139) solid;
+  padding: 5px 8px;
+  box-shadow: 3px 3px 8px 2px rgba(0, 0, 0, 0.3);
+  font-size: 16px;
+}
+
+.delBtn:hover {
+  background-image: linear-gradient(#1b00b4, #351ff8);
+  text-decoration: none;
+}

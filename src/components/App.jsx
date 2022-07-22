@@ -1,54 +1,70 @@
-import FeedbackOptions from './FeedbackOptions/FeedbackOptions';
-import Section from './Section/Section';
 import React, { Component } from 'react';
-import Statistics from './Statistics/Statistics';
-import Notification from './Notification/Notification';
-
+import ContactForm from './ContactForm/ContactForm';
+import ContactList from './ContactList/ContactList';
+import Filter from './Filter/Filter';
+import EmptyMessage from './EmptyMessage/EmptyMessage';
+import { nanoid } from 'nanoid';
 export class App extends Component {
   state = {
-    good: 0,
-    neutral: 0,
-    bad: 0,
+    contacts: [
+      { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
+      { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
+      { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
+      { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
+    ],
+    filter: '',
   };
-
-  countTotalFeedback = () => {
-    return Object.values(this.state).reduce((total, item) => total + item, 0);
-  };
-  countPositiveFeedbackPercentage = () => {
-    const total = this.countTotalFeedback();
-    if (total === 0) {
-      return;
-    }
-    return Math.floor((this.state.good * 100) / total);
-  };
-  handleClick = key => {
+  addContact = ({ name, number }) => {
     this.setState(prevState => {
-      return { [key]: prevState[key] + 1 };
+      const { contacts } = this.state;
+      const allContacts = contacts.reduce((acc, contact) => {
+        acc.push(contact.name.toLocaleLowerCase());
+        return acc;
+      }, []);
+
+      if (allContacts.includes(name.toLocaleLowerCase())) {
+        return alert(`${name} already in contacts.`);
+      }
+      const newContact = { id: nanoid(), name, number };
+      return {
+        contacts: [...prevState.contacts, newContact],
+      };
+    });
+  };
+  makeFilteredMarkup = () => {
+    const lowerCaseFilter = this.state.filter.toLocaleLowerCase();
+    const filteredArray = [...this.state.contacts].filter(contact =>
+      contact.name.toLocaleLowerCase().includes(lowerCaseFilter)
+    );
+    return filteredArray;
+  };
+  deleteContact = contactId => {
+    this.setState(prevState => ({
+      contacts: prevState.contacts.filter(contact => contact.id !== contactId),
+    }));
+  };
+  changeFilter = event => {
+    this.setState({
+      filter: event.target.value,
     });
   };
   render() {
-    const { good, bad, neutral } = this.state;
     return (
       <div>
-        <Section title="Please leave feedback">
-          <FeedbackOptions
-            options={Object.keys(this.state)}
-            onLeaveFeedback={this.handleClick}
-          />
-        </Section>
-        <Section title="Statistics">
-          {this.countTotalFeedback() > 0 ? (
-            <Statistics
-              good={good}
-              neutral={neutral}
-              bad={bad}
-              total={this.countTotalFeedback()}
-              positivePercentage={this.countPositiveFeedbackPercentage()}
-            ></Statistics>
-          ) : (
-            <Notification message="There is no feedback" />
-          )}
-        </Section>
+        <h1 className="title_phonebook">Phonebook</h1>
+        <ContactForm onSubmit={this.addContact} />
+        <h2 className="title_contacts">Contacts</h2>
+        {this.state.contacts.length > 0 ? (
+          <>
+            <Filter value={this.state.filter} onChange={this.changeFilter} />
+            <ContactList
+              contacts={this.makeFilteredMarkup()}
+              onDelClick={this.deleteContact}
+            />
+          </>
+        ) : (
+          <EmptyMessage />
+        )}
       </div>
     );
   }
